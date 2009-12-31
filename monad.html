@@ -9,71 +9,71 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 var Monad = function(){
     var instance = {};
-    instance.stack = [];
+
+    instance.fs = []; // Stack of functions
+    instance.rs = []; // Stack of return values
     
     instance.bind = function(func){
-        instance.stack.push(func);
+        instance.fs.push(func);
         return instance;
     }
 
     instance.pass = function(target){
-        //target can either return something, or be a Monad itself
         if(typeof target == "function"){
-            return target(Monad());
+            target(instance);
         }else{
-            return target;
+            instance.rs.push(target);
         }
     }
 
     instance.render = function(f){
-        //if a function is passed, bind it
-        //to the stack and render it within context
-
-        if(typeof f == "function"){
-           return instance.bind(f).render();
-        }else{
-            return instance.stack.map(function(item){
-                       return instance.pass(item);
-                   }).join(', ');
+        if(f){
+            instance.fs[instance.fs.length] = f;
         }
+
+        var current;
+        while(instance.fs.length > 0){
+            current = instance.fs.shift();
+            instance.pass(current);
+        }
+
+        return instance.rs.join(', ');
     }
 
     //######################################
 
     instance.nest = function(func){
-        return instance.bind(function(m){
-            console.log("nesting: " + func);
-            return Monad().render(func);
+        return instance.bind(function(mn){
+            mn.pass(Monad().render(func));
         });
     }
 
     instance.ready = function(){
-        return instance.bind(function(m){
-            return "ready";
+        return instance.bind(function(mn){
+            mn.pass("ready");
         });
     }
 
-
     instance.set = function(){
-        return instance.bind(function(m){
-            return "set";
+        return instance.bind(function(mn){
+            mn.pass("set");
         });
     }
 
     instance.go = function(){
-        return instance.bind(function(m){
-            return "go";
+        return instance.bind(function(mn){
+            mn.pass("go");
         });
     }
 
     return instance;
 }
  
-var done = Monad().ready().nest(function(m){ 
-                                 return m.ready().set().render()} )
-                            .set().go();
+var exampleA = Monad().render(function(mn){ mn.ready().set()});
+var exampleB = Monad().ready().set().nest(function(mn){ mn.ready().set()}).go();
+console.log("result A: " + exampleA);
+console.log("result B: " + exampleB.render());
 
-console.log(done.render());
 </script>
 </head>
 <body>
