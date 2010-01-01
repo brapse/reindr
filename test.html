@@ -8,11 +8,11 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 <script src="src/reindeer.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(function(){
-  console.log("rawr");
+  console.log("Basic Tests");
 
-  //nested spans
-  example1 = Reindeer().span().span();
-  example1.render();
+  //simple tag
+  r1 = Reindeer().span();
+  console.log("testing: " + r1.render());
 });
 </script>
 </head>

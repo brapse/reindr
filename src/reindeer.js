@@ -9,26 +9,38 @@ var Stack = function(el){
 
     var _next = null;
 
-    //last or set the last
+    // ######################### 
+
     st.last = function(el){
-        if(st.next() != null){
-           return st.next().last(el);
+        if(this.next() != null){
+            return this.next().last(el);
         }else{
-            return el ? st.next(el) : st;
+            return el ? this.next(el) : st;
         }
     }
 
-    st.next = function(el){
-        if(el != null){
-            return _next = el;
+    st.next = function(item){
+        console.log("nexting");
+        if(item != null){
+            return _next = item;
         }else{
             return _next;
         }
     }
 
+    st.length = function(){
+       var length = 0; 
+       var c;
+       while(c = this.next()){ length++ }
+       return length;
+    }
+
+    // ######################### 
+
     st.render = function(){
-        if(st.next() != null){
-            return "<span>" + st.next().render() + "</span>";
+        console.log("rendering a stack");
+        if(this.next() != null){
+            return "<span>" + this.next().render() + "</span>";
         }else{
             return "<span/>";
         }
@@ -37,11 +49,10 @@ var Stack = function(el){
     return st;
 }
 
-var Reindeer = function(stack){
-
+var Reindeer = function(){
 
     var rd = {};
-    rd.stack = (stack == undefined) ? Stack(stack) : Stack();
+    rd.stack = Stack();
 
     // ######################### 
    
