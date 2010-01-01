@@ -10,9 +10,14 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 $(function(){
   console.log("Basic Tests");
 
-  //simple tag
-  r1 = Reindeer().span();
-  console.log("testing: " + r1.render());
+  r1 = Reindeer().text("example1");
+  console.log("text: " + r1.render());
+
+  r2 = Reindeer().span().text("example2");
+  console.log("single tag: " + r2.render());
+
+  r3 = Reindeer().div().span().text("example3");
+  console.log("span in a div: " + r3.render());
 });
 </script>
 </head>

@@ -3,9 +3,11 @@
 // Reindeer
 //
 // Html generation helpers
+// By: Sean Braithwaite
+//
+// NOTE: won't work in IE
 
 var Reindeer = function(){
-
     var supported_tags = ["span", "div", "a"];
 
     var Stack = function(type){
@@ -13,7 +15,8 @@ var Reindeer = function(){
         st = {};
         var _tag, _next, _text;
 
-        if(type in supported_tags){
+        //XXX: js 1.6
+        if(supported_tags.lastIndexOf(type) != -1){
             _tag = type;
         }else{
             _text = type;
@@ -22,35 +25,35 @@ var Reindeer = function(){
         // ######################### 
 
         st.last = function(el){
-            if(this.next() != null){
+            if(this.next()){
                 return this.next().last(el);
             }else{
                 return el ? this.next(el) : st;
             }
-        }
+        };
 
         st.next = function(item){
             console.log("nexting");
-            if(item != null){
-                return _next = item;
+            if(item){
+                return (_next = item);
             }else{
                 return _next;
             }
-        }
+        };
 
         st.length = function(i){
-           var i = i || 0; 
+           var _i = i || 0; 
            if(this.next()){
-               return this.next().length(i+1);
+               return this.next().length(_i+1);
            }else{
                return i;
            }
-        }
+        };
 
         // ######################### 
 
         st.render = function(){
-            if(this.next() != null){
+            if(this.next()){
                 if(_tag){
                     return "<" + _tag + ">" + this.next().render() + "</" + _tag + ">";
                 }else{
@@ -63,36 +66,42 @@ var Reindeer = function(){
                     return "<" + _tag + "/>";
                 }
             }
-        }
+        };
 
         return st;
-    }
+    };
 
     var rd = {};
-    rd.stack = Stack();
+    rd.stack = new Stack();
 
     // ######################### 
    
     rd.render = function(){
         console.log("rendering");
         return rd.stack.render();
-    }
+    };
 
     // ######################### 
 
     rd.text = function(text){
-        rd.stack.last(Stack(text));
+        rd.stack.last(new Stack(text));
         return rd;
-    }
+    };
 
-    var i, tag;
-    for(i=0; i < supported_tags.length; i++){
-        tag = supported_tags[i];
-        rd[tag] = function(attrs){
-            rd.stack.last(Stack(tag, attrs));
-            return rd;
-        }
-    }
+    rd.span = function(attrs){
+            rd.stack.last(new Stack("span", attrs));
+            return this;
+    };
+
+    rd.div = function(attrs){
+            rd.stack.last(new Stack("div", attrs));
+            return this;
+    };
+
+    rd.a = function(attrs){
+            rd.stack.last(new Stack("a", attrs));
+            return this;
+    };
 
     return rd;
-}
+};
