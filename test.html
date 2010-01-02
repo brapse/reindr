@@ -47,7 +47,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     };
 
     var assert_renders = function(rd, markup, desc){
-        if(rd == markup){
+        if(rd.replace(/\s/g,'') == markup.replace(/\s/g,'')){
             pass(desc);
         }else{
             fail(desc, "expected: " + rd + " to be: " + markup);
@@ -65,6 +65,17 @@ $(function(){
   assert_renders(Reindeer().span({class: "myClass"}).text("Example4").render(), "<span class=\"myClass\">Example4</span>", "Tag with attributes");
 
   //Filling
+  var col = ["one", "two"];
+  fill_func = function(collection, rd){
+    collection.each(function(el){
+        return rd.span().text("nested: " + el);
+    });
+  }
+
+  var filled  = Reindeer().div().collect(col, function(rd, e){ return rd.span().text("item: " + e).render()}).render();
+  var expected_html = "<div><span>item: one</span><span>item: two</span></div>";
+
+  assert_renders(filled, expected_html, "Reindeer with filling");
 });
 </script>
 </head>

@@ -9,10 +9,10 @@
 // Try not to depend on jquery for now
 
 var Reindeer = function(){
+
     var supported_tags = ["span", "div", "a"];
 
     var Stack = function(type, attrs){
-
         st = {};
         var _tag, _next, _text;
         var _attrs = attrs || {};
@@ -79,6 +79,33 @@ var Reindeer = function(){
         return st;
     };
 
+    var Collection = function(elements, fill_func){
+        var col = {};
+        var _elements = elements;
+        var _fill_func = fill_func;
+
+        //XXX: this probobaly sucks
+        var stack  = new Stack();
+        col.next   = stack.next;
+        col.last   = stack.last;
+        col.length = stack.length;
+
+        col.render = function(){
+            var collection_elements = _elements.map(function(el){
+                   return _fill_func(new Reindeer(), el);
+            });
+
+            if(this.next()){
+                collection_elements.push(this.next().render());
+            }
+
+            return collection_elements.join("\n");
+        };
+
+        return col;
+    };
+
+
     var rd = {};
     rd.stack = new Stack();
 
@@ -108,6 +135,11 @@ var Reindeer = function(){
     rd.a = function(attrs){
             rd.stack.last(new Stack("a", attrs));
             return this;
+    };
+
+    rd.collect = function(col, fill_func){
+        rd.stack.last(new Collection(col, fill_func));
+        return this;
     };
 
     return rd;
