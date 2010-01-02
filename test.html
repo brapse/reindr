@@ -31,6 +31,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     }
 </style>
 <script type="text/javascript">
+
     var pass = function(desc) {
         var result = "<div class=\"pass\">";
         result += "<span>Pass: " + desc + "</span>";
@@ -39,11 +40,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     };
 
     var fail = function(desc, msg) {
-        var result = "<div class=\"fail\">";
-        result += "<span>Failure: " + desc + "</span>";
-        result += "<span>" + msg + "</span>";
-        result += "</div>";
-        $("#results").append(result);
+        var result = $("<div>").addClass("fail");
+        var desc = $("<span>").text("Failure: " + desc);
+        var msg = $("<span>").text(msg);
+        $("#results").append(result.append(msg).append(msg));
     };
 
     var assert_renders = function(rd, markup, desc){
@@ -55,9 +55,16 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     };
 
 $(function(){
+  // basics
   assert_renders(Reindeer().text("example1").render(), "example1", "Simple text");
   assert_renders(Reindeer().span().text("Example2").render(), "<span>Example2</span>", "Span tag");
   assert_renders(Reindeer().div().span().text("Example3").render(), "<div><span>Example3</span></div>", "Span tag nested in a div");
+
+
+  //attributes
+  assert_renders(Reindeer().span({class: "myClass"}).text("Example4").render(), "<span class=\"myClass\">Example4</span>", "Tag with attributes");
+
+  //Filling
 });
 </script>
 </head>
