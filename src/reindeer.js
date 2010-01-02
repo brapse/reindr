@@ -64,7 +64,9 @@ var Reindeer = function(){
         st.render_tag = function(contents){
             var tag_attributes = [_tag];
             for(var prop in _attrs){
-                tag_attributes.push(prop + "=\"" + _attrs[prop] + "\"");
+                if (_attrs.hasOwnProperty(prop)) {
+                    tag_attributes.push(prop + "=\"" + _attrs[prop] + "\"");
+                }
             }
 
             if(contents){
