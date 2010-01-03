@@ -1,6 +1,6 @@
 //##########################################
 //
-// Reindeer
+// Reindr
 //
 // Html generation helpers
 // By: Sean Braithwaite
@@ -18,7 +18,7 @@ Array.prototype.each = function(func){
 
 // ######################### 
 
-var Reindeer = function(target){
+var Reindr = function(target){
 
     var rd = {};
     var _target;
@@ -27,7 +27,7 @@ var Reindeer = function(target){
         _target = target;
     }
 
-    var supported_tags = ["span", "div", "a", "ul", "li", "p"];
+    var supported_tags =  ["span", "div", "a", "ul", "li", "p"];
 
     var Stack = function(type, attrs){
         st = {};
@@ -109,7 +109,7 @@ var Reindeer = function(target){
 
         col.render = function(){
             var collection_elements = _elements.map(function(el){
-                   return _fill_func(new Reindeer(), el);
+                   return _fill_func(new Reindr(), el);
             });
 
             if(this.next()){
@@ -157,3 +157,5 @@ var Reindeer = function(target){
 
     return rd;
 };
+
+$R = Reindr;
