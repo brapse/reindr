@@ -41,12 +41,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
     var fail = function(desc, msg) {
         var result = $("<div>").addClass("fail");
-        var desc = $("<span>").text("Failure: " + desc);
-        var msg = $("<span>").text(msg);
+        var desc   = $("<span>").text("Failure: " + desc);
+        var msg    = $("<span>").text(msg);
         $("#results").append(result.append(msg).append(msg));
     };
 
     var assert_renders = function(rd, markup, desc){
+        //same markup without whitespaces
         if(rd.replace(/\s/g,'') == markup.replace(/\s/g,'')){
             pass(desc);
         }else{
@@ -71,10 +72,19 @@ $(function(){
     });
   }
 
+  // Support for render based filling. Reindeer().span().render("foo"); # => <span>foo</span>
   var filled  = Reindeer().div().collect(col, function(rd, e){ return rd.span().text("item: " + e).render()}).render();
   var expected_html = "<div><span>item: one</span><span>item: two</span></div>";
 
   assert_renders(filled, expected_html, "Reindeer with filling");
+
+  //support for insertion points
+  Reindeer("target1").span().text("target1").render();
+  assert_renders(document.getElementById("target1").innerHTML, "<span>target1</span>", "insert rendering into a target");
+
+  //Support for chained attributes buidling (A la jquery);
+  /* PENDING
+  PENDING */   
 });
 </script>
 </head>
@@ -82,5 +92,6 @@ $(function(){
     <h1>Reindeer tests</h1>
     <div id="results">
     </div>
+    <div id="target1" style="visibility: hidden"></div>
 </body>
 </html>

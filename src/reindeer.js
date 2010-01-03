@@ -18,7 +18,14 @@ Array.prototype.each = function(func){
 
 // ######################### 
 
-var Reindeer = function(){
+var Reindeer = function(target){
+
+    var rd = {};
+    var _target;
+
+    if(target){
+        _target = target;
+    }
 
     var supported_tags = ["span", "div", "a", "ul", "li", "p"];
 
@@ -115,13 +122,18 @@ var Reindeer = function(){
         return col;
     };
 
-    var rd = {};
     rd.stack = new Stack();
 
     // ######################### 
    
     rd.render = function(){
-        return rd.stack.render();
+        var html = rd.stack.render();
+        if(_target){
+            ///XXX depend on jquery and do this with selectors?
+            document.getElementById(_target).innerHTML = html;
+        }else{
+            return html;
+        }
     };
 
     // ######################### 
