@@ -60,7 +60,6 @@ $(function(){
   assert_renders(Reindeer().span().text("Example2").render(), "<span>Example2</span>", "Span tag");
   assert_renders(Reindeer().div().span().text("Example3").render(), "<div><span>Example3</span></div>", "Span tag nested in a div");
 
-
   //attributes
   assert_renders(Reindeer().span({class: "myClass"}).text("Example4").render(), "<span class=\"myClass\">Example4</span>", "Tag with attributes");
 

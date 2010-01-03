@@ -5,12 +5,22 @@
 // Html generation helpers
 // By: Sean Braithwaite
 //
-// NOTE: won't work in IE
+// NOTE: won't work in IE (js 1.6 dependencies)
 // Try not to depend on jquery for now
+
+Array.prototype.each = function(func){
+    for(var i=0; i < this.length; i++){
+       func(this[i]);
+    }
+
+    return this;
+};
+
+// ######################### 
 
 var Reindeer = function(){
 
-    var supported_tags = ["span", "div", "a"];
+    var supported_tags = ["span", "div", "a", "ul", "li", "p"];
 
     var Stack = function(type, attrs){
         st = {};
@@ -105,7 +115,6 @@ var Reindeer = function(){
         return col;
     };
 
-
     var rd = {};
     rd.stack = new Stack();
 
@@ -117,30 +126,22 @@ var Reindeer = function(){
 
     // ######################### 
 
+    rd.collect = function(col, fill_func){
+        rd.stack.last(new Collection(col, fill_func));
+        return this;
+    };
+
     rd.text = function(text){
         rd.stack.last(new Stack(text));
         return rd;
     };
 
-    rd.span = function(attrs){
-            rd.stack.last(new Stack("span", attrs));
+    supported_tags.each(function(tag){
+        rd[tag] = function(attrs){
+            rd.stack.last(new Stack(tag, attrs));
             return this;
-    };
-
-    rd.div = function(attrs){
-            rd.stack.last(new Stack("div", attrs));
-            return this;
-    };
-
-    rd.a = function(attrs){
-            rd.stack.last(new Stack("a", attrs));
-            return this;
-    };
-
-    rd.collect = function(col, fill_func){
-        rd.stack.last(new Collection(col, fill_func));
-        return this;
-    };
+        };
+    });
 
     return rd;
 };
