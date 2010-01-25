@@ -60,11 +60,11 @@ var html = function(t_func){
     var t = {};
 
     var tag_function = function(tag){
-        return function(attrs, contents){
+        return function(attrs, content){
             var tag_attributes = [];
             if(typeof(attrs) == 'object'){
                 for(var prop in attrs){
-                    if (attrs.hasOwnProperty(prop)){
+                    if(attrs.hasOwnProperty(prop)){
                         tag_attributes.push(prop + '="' + attrs[prop] + '"');
                     }
                 }
@@ -76,37 +76,45 @@ var html = function(t_func){
 
     var body = t_func.toString().replace(/\n/g, "").match(/{(.*)}/)[1];
 
-    var supported_tags = ['div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td'];
+         var supported_tags = ['div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td'];
     var wrapper = new Function('div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td', body);
 
-    var tag_functions = supported.tags.map(function(tag){
+    var tag_functions = supported_tags.map(function(tag){
                 return tag_function(tag);
             });
 
     var stack = wrapper.apply(null, tag_functions);
 
     var render = function(node){
-        if(typeof(node) == "undefined" || !node.length){ return node; }
-
-        for(n in node){
-            //how to render a tag
+        console.log('rendering');
+        if(typeof(node) == "undefined" || !node.length || node.length == 0){
+            return '';
+        }else if(typeof(node) == "string"){
+            return node;
+        }else if(typeof(node[0]) == "function"){
+            //an element with children
+            var tag = node.shift();
+            return tag(render(node));
+        }else{
+            //children
+            return node.map(function(el){ return render(el) }).join("\n");
         }
     }
 
-    return render.call(stack);
+    return render(stack);
 };
 
 var example1 = html(function(){
     return [span, "lol"];
-}
+});
 
 var example2 = html(function(){
     return [span, [a, "myhouse"]];
-}
+});
 
 var example3 = html(function(){
     return [span({class: "droid"}), "Robots"];
-}
+});
 
 var example4 = html(function(){
   return [ul,
