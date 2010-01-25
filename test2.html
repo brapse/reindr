@@ -57,8 +57,6 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 
 var html = function(t_func){
-    var t = {};
-
     var tag_function = function(tag){
         return function(attrs, content){
             var tag_attributes = [];
@@ -70,7 +68,12 @@ var html = function(t_func){
                 }
             }
 
-            return '<' + tag + ' ' + tag_attributes.join(' ') + '>' + content + '</' +tag + '>'
+            if(tag_attributes.length > 0){
+                return '<' + tag + ' ' + tag_attributes.join(' ') + '>' + content + '</' +tag + '>'
+            }else{
+                return '<' + tag + '>' + content + '</' +tag + '>'
+            }
+
         }
     };
 
@@ -94,7 +97,7 @@ var html = function(t_func){
         }else if(typeof(node[0]) == "function"){
             //an element with children
             var tag = node.shift();
-            return tag(render(node));
+            return tag({}, render(node));
         }else{
             //children
             return node.map(function(el){ return render(el) }).join("\n");
