@@ -107,17 +107,7 @@ var html = function(t_func){
     return render(stack);
 };
 
-var example1 = html(function(){
-    return [span, "lol"];
-});
 
-var example2 = html(function(){
-    return [span, [a, "myhouse"]];
-});
-
-var example3 = html(function(){
-    return [span({class: "droid"}), "Robots"];
-});
 
 var example4 = html(function(){
   return [ul,
@@ -127,6 +117,24 @@ var example4 = html(function(){
          ];
 });
 
+$(function(){
+    var example1 = html(function(){
+        return [span, "lol"];
+    });
+    assert_renders(example1, "<span>lol</span>");
+
+
+    var example2 = html(function(){
+        return [span, [a, "myhouse"]];
+    });
+    assert_renders(example2, "<span><a>myhouse</a></span>")
+
+    var example3 = html(function(){
+        return [span({class: "droid"}), "Robots"];
+    });
+    assert_renders(example3, '<span class="droid">Robots</span>');
+
+});
 </script>
 </head>
 <body>
