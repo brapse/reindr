@@ -56,24 +56,53 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     };
 
 
-var html = function(t_func){
-    var tag_function = function(tag){
-        return function(attrs, content){
-            var tag_attributes = [];
-            if(typeof(attrs) == 'object'){
-                for(var prop in attrs){
-                    if(attrs.hasOwnProperty(prop)){
-                        tag_attributes.push(prop + '="' + attrs[prop] + '"');
-                    }
+var do_html = function(t_func){
+
+    // renders a tag with attriutes
+    var object_size_count = function(obj){
+        var count = 0;
+        for(var prop in obj){
+            if(obj.hasOwnProperty(prop)){
+                count++;
+            }
+        }
+        return count;
+    };
+
+    var tag_function = function(tag, attrs, content){
+        var tag_attributes = [];
+        if(typeof(attrs) == 'object'){
+            for(var prop in attrs){
+                if(attrs.hasOwnProperty(prop)){
+                    tag_attributes.push(prop + '="' + attrs[prop] + '"');
                 }
             }
+        }
 
-            if(tag_attributes.length > 0){
-                return '<' + tag + ' ' + tag_attributes.join(' ') + '>' + content + '</' +tag + '>'
+        html = '';
+        html += '<' + tag;
+        if(tag_attributes.length > 0){
+            html += ' ' + tag_attributes.join(' ');
+        }
+
+        if(typeof(content) == 'string'  && content.length > 0){
+            html += '>' + content + '</' + tag + '>';
+        }else{
+            html += '/>'
+        }
+
+        return html;
+    };
+
+    var tag_function_generator = function(tag){
+        return function(attrs, content){
+            if(object_size_count(attrs) > 0){
+                return function(a, c){
+                    return tag_function(tag, attrs, c);
+                }
             }else{
-                return '<' + tag + '>' + content + '</' +tag + '>'
+                return tag_function(tag, attrs, content);
             }
-
         }
     };
 
@@ -83,7 +112,7 @@ var html = function(t_func){
     var wrapper = new Function('div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td', body);
 
     var tag_functions = supported_tags.map(function(tag){
-                return tag_function(tag);
+                return tag_function_generator(tag);
             });
 
     var stack = wrapper.apply(null, tag_functions);
@@ -107,33 +136,30 @@ var html = function(t_func){
     return render(stack);
 };
 
-
-
-var example4 = html(function(){
-  return [ul,
-            [li, "ichi"],
-            [li, "ni"],
-            [li, "san"],
-         ];
-});
-
 $(function(){
-    var example1 = html(function(){
+    var example1 = do_html(function(){
         return [span, "lol"];
     });
-    assert_renders(example1, "<span>lol</span>");
+    assert_renders(example1, '<span>lol</span>', "tag with content");
 
-
-    var example2 = html(function(){
+    var example2 = do_html(function(){
         return [span, [a, "myhouse"]];
     });
-    assert_renders(example2, "<span><a>myhouse</a></span>")
+    assert_renders(example2, "<span><a>myhouse</a></span>", "nested tag with content");
 
-    var example3 = html(function(){
+    var example3 = do_html(function(){
         return [span({class: "droid"}), "Robots"];
     });
-    assert_renders(example3, '<span class="droid">Robots</span>');
+    assert_renders(example3, '<span class="droid">Robots</span>', "tag with attributes");
 
+    var example4 = do_html(function(){
+      return [ul,
+                [li, "ichi"],
+                [li, "ni"],
+                [li, "san"],
+             ];
+    });
+    assert_renders(example4, '<ul><li>ichi</li><li>ni</li><li>san</li></ul>', "tag with multiple children with respective content");
 });
 </script>
 </head>
