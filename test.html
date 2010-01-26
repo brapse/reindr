@@ -56,36 +56,29 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     };
 
 $(function(){
-  // basics
-  assert_renders($R().text("example1").render(), "example1", "Simple text");
-  assert_renders($R().span().text("Example2").render(), "<span>Example2</span>", "Span tag");
-  assert_renders($R().div().span().text("Example3").render(), "<div><span>Example3</span></div>", "Span tag nested in a div");
-
-  //attributes
-  assert_renders($R().span({class: "myClass"}).text("Example4").render(), "<span class=\"myClass\">Example4</span>", "Tag with attributes");
-
-  //Filling
-  var col = ["one", "two"];
-  fill_func = function(collection, rd){
-    collection.each(function(el){
-        return rd.span().text("nested: " + el);
+    var example1 = do_html(function(){
+        return [span, "lol"];
     });
-  }
+    assert_renders(example1, '<span>lol</span>', "tag with content");
 
-  // Support for render based filling. $R().span().render("foo"); # => <span>foo</span>
-  var filled  = $R().div().collect(col, function(rd, e){ return rd.span().text("item: " + e).render()}).render();
-  var expected_html = "<div><span>item: one</span><span>item: two</span></div>";
+    var example2 = do_html(function(){
+        return [span, [a, "myhouse"]];
+    });
+    assert_renders(example2, "<span><a>myhouse</a></span>", "nested tag with content");
 
-  assert_renders(filled, expected_html, "$R with filling");
+    var example3 = do_html(function(){
+        return [span({class: "droid"}), "Robots"];
+    });
+    assert_renders(example3, '<span class="droid">Robots</span>', "tag with attributes");
 
-  //support for insertion points
-  $R("target1").span().text("target1").render();
-  assert_renders(document.getElementById("target1").innerHTML, "<span>target1</span>", "insert rendering into a target");
-
-  //Support for chained attributes buidling (A la jquery);
-  //Support for chained attributes applying to a collection
-
-  //support for tempaltes
+    var example4 = do_html(function(){
+      return [ul,
+                [li, "ichi"],
+                [li, "ni"],
+                [li, "san"],
+             ];
+    });
+    assert_renders(example4, '<ul><li>ichi</li><li>ni</li><li>san</li></ul>', "tag with multiple children with respective content");
 });
 </script>
 </head>

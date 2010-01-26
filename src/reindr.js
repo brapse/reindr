@@ -17,145 +17,81 @@ Array.prototype.each = function(func){
 };
 
 // ######################### 
+var do_html = function(t_func){
 
-var Reindr = function(target){
-
-    var rd = {};
-    var _target;
-
-    if(target){
-        _target = target;
-    }
-
-    var supported_tags =  ["span", "div", "a", "ul", "li", "p"];
-
-    var Stack = function(type, attrs){
-        st = {};
-        var _tag, _next, _text;
-        var _attrs = attrs || {};
-
-        //XXX: js 1.6
-        if(supported_tags.lastIndexOf(type) != -1){
-            _tag = type;
-        }else{
-            _text = type;
+    var object_size_count = function(obj){
+        var count = 0;
+        for(var prop in obj){
+            if(obj.hasOwnProperty(prop)){
+                count++;
+            }
         }
+        return count;
+    };
 
-        // ######################### 
-
-        st.last = function(el){
-            if(this.next()){
-                return this.next().last(el);
-            }else{
-                return el ? this.next(el) : st;
-            }
-        };
-
-        st.next = function(item){
-            if(item){
-                return (_next = item);
-            }else{
-                return _next;
-            }
-        };
-
-        st.length = function(i){
-           var _i = i || 0; 
-           if(this.next()){
-               return this.next().length(_i+1);
-           }else{
-               return i;
-           }
-        };
-
-        // ######################### 
-
-        st.render = function(){
-            if(this.next()){
-                return _tag ? this.render_tag(this.next().render()) : this.next().render();
-            }else{
-                return _text ? _text : this.render_tag();
-            }
-        };
-
-        st.render_tag = function(contents){
-            var tag_attributes = [_tag];
-            for(var prop in _attrs){
-                if (_attrs.hasOwnProperty(prop)) {
-                    tag_attributes.push(prop + "=\"" + _attrs[prop] + "\"");
+    var tag_function = function(tag, attrs, content){
+        var tag_attributes = [];
+        if(typeof(attrs) == 'object'){
+            for(var prop in attrs){
+                if(attrs.hasOwnProperty(prop)){
+                    tag_attributes.push(prop + '="' + attrs[prop] + '"');
                 }
             }
+        }
 
-            if(contents){
-                return "<" + tag_attributes.join(' ') + ">" + this.next().render() + "</" + _tag + ">";
-            }else{
-                return "<" + tag_attributes.join(' ') + "/>";
-            }
-        };
+        html = '';
+        html += '<' + tag;
+        if(tag_attributes.length > 0){
+            html += ' ' + tag_attributes.join(' ');
+        }
 
-        return st;
-    };
-
-    var Collection = function(elements, fill_func){
-        var col = {};
-        var _elements = elements;
-        var _fill_func = fill_func;
-
-        //XXX: this probobaly sucks
-        var stack  = new Stack();
-        col.next   = stack.next;
-        col.last   = stack.last;
-        col.length = stack.length;
-
-        col.render = function(){
-            var collection_elements = _elements.map(function(el){
-                   return _fill_func(new Reindr(), el);
-            });
-
-            if(this.next()){
-                collection_elements.push(this.next().render());
-            }
-
-            return collection_elements.join("\n");
-        };
-
-        return col;
-    };
-
-    rd.stack = new Stack();
-
-    // ######################### 
-   
-    rd.render = function(){
-        var html = rd.stack.render();
-        if(_target){
-            ///XXX depend on jquery and do this with selectors?
-            document.getElementById(_target).innerHTML = html;
+        if(typeof(content) == 'string'  && content.length > 0){
+            html += '>' + content + '</' + tag + '>';
         }else{
-            return html;
+            html += '/>'
+        }
+
+        return html;
+    };
+
+    var tag_function_generator = function(tag){
+        return function(attrs, content){
+            if(object_size_count(attrs) > 0){
+                return function(a, c){
+                    return tag_function(tag, attrs, c);
+                }
+            }else{
+                return tag_function(tag, attrs, content);
+            }
         }
     };
 
-    // ######################### 
+    var body = t_func.toString().replace(/\n/g, "").match(/{(.*)}/)[1];
 
-    rd.collect = function(col, fill_func){
-        rd.stack.last(new Collection(col, fill_func));
-        return this;
-    };
+         var supported_tags = ['div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td'];
+    var wrapper = new Function('div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td', body);
 
-    rd.text = function(text){
-        rd.stack.last(new Stack(text));
-        return rd;
-    };
+    var tag_functions = supported_tags.map(function(tag){
+                return tag_function_generator(tag);
+            });
 
-    supported_tags.each(function(tag){
-        rd[tag] = function(attrs){
-            rd.stack.last(new Stack(tag, attrs));
-            return this;
-        };
-    });
+    var stack = wrapper.apply(null, tag_functions);
 
-    return rd;
+    var render = function(node){
+        console.log('rendering');
+        if(typeof(node) == "undefined" || !node.length || node.length == 0){
+            return '';
+        }else if(typeof(node) == "string"){
+            return node;
+        }else if(typeof(node[0]) == "function"){
+            //an element with children
+            var tag = node.shift();
+            return tag({}, render(node));
+        }else{
+            //children
+            return node.map(function(el){ return render(el) }).join("\n");
+        }
+    }
+
+    return render(stack);
 };
-
-$R = Reindr;
