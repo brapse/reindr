@@ -16,9 +16,18 @@ Array.prototype.each = function(func){
     return this;
 };
 
-// ######################### 
-var do_html = function(t_func){
+Function.prototype.args = function(){
+    var sig = this.toString().match(/function \((.*)\)/)[1];
+    return sig.split(', ');
+}
 
+Function.prototype.body = function(){
+    return this.toString().replace(/\n/g, "").match(/{(.*)}/)[1];
+}
+
+// ######################### 
+//
+var reindr = function(t_func){
     var object_size_count = function(obj){
         var count = 0;
         for(var prop in obj){
@@ -28,6 +37,8 @@ var do_html = function(t_func){
         }
         return count;
     };
+
+    // #######################
 
     var tag_function = function(tag, attrs, content){
         var tag_attributes = [];
@@ -54,6 +65,8 @@ var do_html = function(t_func){
         return html;
     };
 
+    // #######################
+    
     var tag_function_generator = function(tag){
         return function(attrs, content){
             if(object_size_count(attrs) > 0){
@@ -66,19 +79,9 @@ var do_html = function(t_func){
         }
     };
 
-    var body = t_func.toString().replace(/\n/g, "").match(/{(.*)}/)[1];
-
-         var supported_tags = ['div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td'];
-    var wrapper = new Function('div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td', body);
-
-    var tag_functions = supported_tags.map(function(tag){
-                return tag_function_generator(tag);
-            });
-
-    var stack = wrapper.apply(null, tag_functions);
+    // #######################
 
     var render = function(node){
-        console.log('rendering');
         if(typeof(node) == "undefined" || !node.length || node.length == 0){
             return '';
         }else if(typeof(node) == "string"){
@@ -92,6 +95,17 @@ var do_html = function(t_func){
             return node.map(function(el){ return render(el) }).join("\n");
         }
     }
+
+    var body = t_func.body();
+
+         var supported_tags = ['div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td'];
+    var wrapper = new Function('div', 'p', 'span', 'a', 'ul', 'li', 'table', 'tr', 'td', body);
+
+    var tag_functions = supported_tags.map(function(tag){
+                return tag_function_generator(tag);
+            });
+
+    var stack = wrapper.apply(null, tag_functions);
 
     return render(stack);
 };

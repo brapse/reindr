@@ -56,22 +56,22 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     };
 
 $(function(){
-    var example1 = do_html(function(){
+    var example1 = reindr(function(){
         return [span, "lol"];
     });
     assert_renders(example1, '<span>lol</span>', "tag with content");
 
-    var example2 = do_html(function(){
+    var example2 = reindr(function(){
         return [span, [a, "myhouse"]];
     });
     assert_renders(example2, "<span><a>myhouse</a></span>", "nested tag with content");
 
-    var example3 = do_html(function(){
+    var example3 = reindr(function(){
         return [span({class: "droid"}), "Robots"];
     });
     assert_renders(example3, '<span class="droid">Robots</span>', "tag with attributes");
 
-    var example4 = do_html(function(){
+    var example4 = reindr(function(){
       return [ul,
                 [li, "ichi"],
                 [li, "ni"],
@@ -79,6 +79,15 @@ $(function(){
              ];
     });
     assert_renders(example4, '<ul><li>ichi</li><li>ni</li><li>san</li></ul>', "tag with multiple children with respective content");
+
+    //templates
+    var my_func = reindr(function(obj){
+        return [div,
+                    [a, obj.name]];
+    });
+
+    var my_obj = {name: "knives chau"};
+    //assert_renders(my_func(my_obj));
 });
 </script>
 </head>
